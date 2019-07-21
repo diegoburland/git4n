@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+//components
+import Navbar from './components/Navbar';
+import Formulario from './components/Formulario';
+
+
+export default class App extends Component{
+
+  addUser = (name, lastname, personal_id, birthday, email, github)=>{
+    const newUser = {
+      name,
+      lastname,
+      personal_id,
+      birthday,
+      email,
+      github
+    }
+
+    console.log(newUser);
+  }
+
+  render(){
+    return <div>
+              <Router>
+                <Navbar/>
+                <main className="mainContent">
+                  <div className="container">
+                    <div className="row">
+                      <Formulario addUser={this.addUser} />
+                    </div>
+                  </div>
+                </main>
+              </Router>
+            </div>
+  }
+
 }
 
-export default App;
+
