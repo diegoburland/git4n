@@ -15,3 +15,13 @@ header .navbar{
   min-height: 100vh;
   padding-top: 80px
 }
+
+.card .form-group{
+  position: relative
+}
+
+.card .form-group .error{
+  position: absolute;
+  font-size: 11px;
+  color: red
+}
