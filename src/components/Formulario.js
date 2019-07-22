@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
-import Search from './Search';
+import axios from 'axios';
+var CancelToken = axios.CancelToken;
+let cancel = '';
 
 const initialState = {
     name : '',
@@ -14,24 +16,75 @@ const initialState = {
     personal_idError: '',
     birthdayError: '',
     emailError: '',
-    githubError: ''
+    githubError: '',
+    query: '',
+    results: '',
+    loading: false,
+    message: '',
 
 
 }
 export default class Formulario extends Component {
 
-    async VerifiedUserGithub(name){
-        const res = await fetch('https://api.github.com/users/' + name)
-        const data = await res.json()
-        if(data.message === 'Not Found'){
-            return false;
-        }else{
-            return true;
-        }
-        
-   }
 
     state = initialState;
+
+    fetchSearchResult = (query) => {
+        
+        const searchUrl = `https://api.github.com/search/users?q=${query}&client_id=5bdcb6dca7a60b24e67a&client_secret=87b7273004655379d13a5790d7fc1a039068d6c4`
+
+        cancel && cancel();
+
+        axios.get( searchUrl, {
+            CancelToken: new CancelToken(function executor(c){
+                cancel = c;
+            })
+        }).then((response)=>{
+            const noFound = !response.data.items.length
+                            ? 'No encontrado'
+                            : '';
+            
+            this.setState({
+                results: response.data.items,
+                message: noFound,
+                loading: false
+            })
+        }).catch(error =>{
+            if(axios.Cancel(error) || error){
+                
+                this.setState({
+                    loading: false,
+                    message: 'Ocurrio un error'
+                })
+            }
+        })
+    }
+
+    selectName = (e) =>{
+        var el = e.target;
+        var text = el.textContent || el.innerText;
+        document.getElementById('github').value = text
+        el.parentElement.style.display = 'none'
+    }
+
+    renderResult = () =>{
+        const { results } = this.state;
+        
+        if(Object.keys(results).length && results.length){
+            return (
+                <div id='result-container' style={{display:'block'}} className="result-container">
+                    {   
+                        results.map(result =>{
+                            
+                            return (
+                                <h6 key={result.id} onClick={ this.selectName }  className="result-item">{result.login}</h6>
+                            )
+                        })
+                    }
+                </div>
+            )
+        }
+    }
 
     validate = () =>{
         let nameError =  '';
@@ -59,9 +112,8 @@ export default class Formulario extends Component {
 
         if(!this.state.github){
             githubError = 'Este campo no puede estar vacio';
-        }else if(this.VerifiedUserGithub(this.state.github)){
-            githubError = 'Usuario no encontrado';
         }
+
         if(!this.state.email){
             emailError = 'Este campo no puede estar vacio';
         }else if(!this.state.email.includes('@')){
@@ -93,10 +145,22 @@ export default class Formulario extends Component {
     }
 
     onChange = (e) =>{
-        this.setState({
-            [e.target.name] : e.target.value
-        })
+        if(e.target.name !== 'github'){
+            this.setState({
+                [e.target.name] : e.target.value
+            })
+        }else{
+            this.setState({
+                [e.target.name] : e.target.value
+            })
 
+            const query = e.target.value;
+        
+            this.setState({query, loading: true}, ()=>{
+                this.fetchSearchResult(this.state.query);
+            })
+            
+        }
        
     }
 
@@ -147,7 +211,13 @@ export default class Formulario extends Component {
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
-                                        <Search title={'github'} change={this.state.github}/>
+                                        {/* <Search title={'github'} change={this.state.github}/> */}
+                                        <div className="form-group">
+                                            <label htmlFor="github">Github</label>
+                                            <input type="text" name="github" id="github" onChange={this.onChange} className="form-control"/>
+                                            <div className="error">{this.state.githubError}</div>
+                                            {this.renderResult()}
+                                        </div>
                                     </div>
                                     <div className="col-12 pt-3">
                                         <div className="form-group">
@@ -159,8 +229,6 @@ export default class Formulario extends Component {
                         </div>
                     </div>
                 </div>
-                
-            
         )
     }
 }
