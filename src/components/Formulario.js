@@ -276,7 +276,7 @@ export default class Formulario extends Component {
                                                 <div className="item-profile-body">
                                                     <img src={ user.avatar? user.avatar : 'https://image.flaticon.com/icons/svg/25/25231.svg'  }></img>
                                                     <div className="content">
-                                                        <Link to="/perfil" className="title">{user.github}</Link>
+                                                        <Link to={'/perfil/'+user.github} className="title">{user.github}</Link>
                                                         <div className="repositorios">
                                                             { user.repos > 0? user.repos: 0 } Repositorios
                                                         </div>

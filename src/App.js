@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 //components
 import Navbar from './components/Navbar';
 import Formulario from './components/Formulario';
+import Perfil from './components/Perfil';
 
 
 export default class App extends Component{
@@ -42,7 +43,7 @@ export default class App extends Component{
   }
 
   render(){
-    console.log(this.state.users)
+    
     if(Cookies.get('users') === undefined){ Cookies.set('users', []) }else{
       Cookies.set('users', this.state.users);
 
@@ -57,11 +58,7 @@ export default class App extends Component{
                     </div>
                   }}>
                   </Route>
-                  <Route path="/profile/:name" render={()=>{
-                    return <div></div>
-
-                  }}>
-                  </Route>
+                  <Route path="/perfil/:name" component={Perfil}/>
                 </main>
               </Router>
             </div>
