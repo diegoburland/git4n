@@ -53,15 +53,27 @@ export default class Search extends Component {
         })
     }
 
+    selectName = (e) =>{
+        var el = e.target;
+        var text = el.textContent || el.innerText;
+        document.getElementById('github').value = text
+    }
+
+    alerta = () =>{
+        alert(50)
+    }
+
     renderResult = () =>{
         const { results } = this.state;
+
         if(Object.keys(results).length && results.length){
             return (
                 <div className="result-container">
-                    {
+                    {   
                         results.map(result =>{
+                            
                             return (
-                                <h6 key={result.id} className="result-item">{result.login}</h6>
+                                <h6 key={result.id} onClick={ this.selectName }  className="result-item">{result.login}</h6>
                             )
                         })
                     }
@@ -72,9 +84,13 @@ export default class Search extends Component {
 
     handleOnInputChange = (e) =>{
         const query = e.target.value;
+        console.log(this.props)
+        
         this.setState({query, loading: true}, ()=>{
             this.fetchSearchResult(this.state.query);
         })
+
+        
         
     };
 

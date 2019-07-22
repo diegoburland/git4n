@@ -147,7 +147,7 @@ export default class Formulario extends Component {
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
-                                        <Search title={'github'}/>
+                                        <Search title={'github'} change={this.state.github}/>
                                     </div>
                                     <div className="col-12 pt-3">
                                         <div className="form-group">

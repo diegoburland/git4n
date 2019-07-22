@@ -25,3 +25,25 @@ header .navbar{
   font-size: 11px;
   color: red
 }
+
+.result-container{
+    
+    border: solid 1px #c9c9c9;
+    border-top: none;
+    max-height: 200px;
+    overflow: auto;
+}
+
+.result-container .result-item{
+  width: 100%;
+  padding: 2px 10px;
+  transition: ease-in-out .3 all;
+  cursor: pointer;
+  
+}
+
+.result-container .result-item:hover{
+  background-color: #f7f7f7;
+
+  
+}
