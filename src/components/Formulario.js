@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
-
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import $ from 'jquery';
+window.jQuery = $;
+window.$ = $;
+global.jQuery = $;
+
 var CancelToken = axios.CancelToken;
 let cancel = '';
 
@@ -11,6 +16,7 @@ const initialState = {
     birthday: '',
     email : '',
     github : '',
+    avatar : '',
     nameError: '',
     lastnameError: '',
     personal_idError: '',
@@ -20,6 +26,7 @@ const initialState = {
     query: '',
     results: '',
     loading: false,
+    repos: '',
     message: '',
 
 
@@ -34,37 +41,64 @@ export default class Formulario extends Component {
         const searchUrl = `https://api.github.com/search/users?q=${query}&client_id=5bdcb6dca7a60b24e67a&client_secret=87b7273004655379d13a5790d7fc1a039068d6c4`
 
         cancel && cancel();
+        if(query.length > 2){
+            axios.get( searchUrl, {
+                CancelToken: new CancelToken(function executor(c){
+                    cancel = c;
+                })
+            }).then((response)=>{
+                const noFound = !response.data.items.length
+                                ? 'No encontrado'
+                                : '';
+                
+                this.setState({
+                    results: response.data.items,
+                    message: noFound,
+                    loading: false,
+                    
+                })
+            }).catch(error =>{
+                if(axios.Cancel(error) || error){
+                    
+                    this.setState({
+                        loading: false,
+                        message: 'Ocurrio un error'
+                    })
+                }
+            })
+        }
+        
+    }
 
-        axios.get( searchUrl, {
+    selectName = (e) =>{
+        var el = $(e.target);
+        var repos = `https://api.github.com/users/${el.text()}/repos?client_id=5bdcb6dca7a60b24e67a&client_secret=87b7273004655379d13a5790d7fc1a039068d6c4`;
+        axios.get( repos, {
             CancelToken: new CancelToken(function executor(c){
                 cancel = c;
             })
         }).then((response)=>{
-            const noFound = !response.data.items.length
-                            ? 'No encontrado'
-                            : '';
-            
+
             this.setState({
-                results: response.data.items,
-                message: noFound,
-                loading: false
+                github: el.text(),
+                avatar: el.attr('data-avatar'),
+                repos: response.data.length,
+
             })
+            
+
+            
         }).catch(error =>{
             if(axios.Cancel(error) || error){
-                
                 this.setState({
                     loading: false,
                     message: 'Ocurrio un error'
                 })
             }
         })
-    }
-
-    selectName = (e) =>{
-        var el = e.target;
-        var text = el.textContent || el.innerText;
-        document.getElementById('github').value = text
-        el.parentElement.style.display = 'none'
+        
+        
+       
     }
 
     renderResult = () =>{
@@ -77,7 +111,7 @@ export default class Formulario extends Component {
                         results.map(result =>{
                             
                             return (
-                                <h6 key={result.id} onClick={ this.selectName }  className="result-item">{result.login}</h6>
+                                <h6 key={result.id} data-avatar={result.avatar_url} onClick={ this.selectName }  className="result-item">{result.login}</h6>
                             )
                         })
                     }
@@ -139,7 +173,7 @@ export default class Formulario extends Component {
         e.preventDefault();
         const valido = this.validate();
         if(valido){
-            this.props.addUser(this.state.name, this.state.lastname, this.state.personal_id, this.state.birthday, this.state.email, this.state.github);
+            this.props.addUser(this.state.name, this.state.lastname, this.state.personal_id, this.state.birthday, this.state.email, this.state.github, this.state.avatar, this.state.repos);
             this.setState(initialState);
         }
     }
@@ -165,10 +199,11 @@ export default class Formulario extends Component {
     }
 
     render() {
+        
         return (
-            
-                <div className="col-md-8 col-sm-12 mx-auto">
-                    <div className="card">
+                <div className="row">
+                    <div className="col-md-8 col-sm-12">
+                        <div className="card">
                         <div className="card-header bg-primary text-white">
                             <h4>Formulario Registro</h4>
                         </div>
@@ -178,35 +213,35 @@ export default class Formulario extends Component {
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="name">Nombres</label>
-                                            <input type="text"  autoComplete="off"   name="name" id="" onChange={this.onChange} className="form-control"/>
+                                            <input type="text"  autoComplete="off"   name="name" id="" onChange={this.onChange} value={this.state.name} className="form-control"/>
                                             <div className="error">{this.state.nameError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="lastname">Apellidos</label>
-                                            <input type="text" name="lastname" id="lastname" onChange={this.onChange} className="form-control"/>
+                                            <input type="text" name="lastname" id="lastname" onChange={this.onChange} value={this.state.lastname} className="form-control"/>
                                             <div className="error">{this.state.lastnameError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="personal_id">Cedula</label>
-                                            <input type="text" name="personal_id" id="personal_id" onChange={this.onChange} className="form-control"/>
+                                            <input type="text" name="personal_id" id="personal_id" onChange={this.onChange} value={this.state.personal_id} className="form-control"/>
                                             <div className="error">{this.state.personal_idError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="birthday">Fecha de Nacimiento</label>
-                                            <input type="text" name="birthday" id="birthday" onChange={this.onChange} className="form-control"/>
+                                            <input type="text" name="birthday" id="birthday" onChange={this.onChange} value={this.state.birthday} className="form-control"/>
                                             <div className="error">{this.state.birthdayError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
-                                            <input type="text" name="email" id="email" onChange={this.onChange} className="form-control"/>
+                                            <input type="text" name="email" id="email" onChange={this.onChange} value={this.state.email} className="form-control"/>
                                             <div className="error">{this.state.emailError}</div>
                                         </div>
                                     </div>
@@ -214,7 +249,7 @@ export default class Formulario extends Component {
                                         {/* <Search title={'github'} change={this.state.github}/> */}
                                         <div className="form-group">
                                             <label htmlFor="github">Github</label>
-                                            <input type="text" name="github" id="github" onChange={this.onChange} className="form-control"/>
+                                            <input type="text" name="github" id="github" onChange={this.onChange} value={this.state.github} className="form-control"/>
                                             <div className="error">{this.state.githubError}</div>
                                             {this.renderResult()}
                                         </div>
@@ -228,7 +263,35 @@ export default class Formulario extends Component {
                             </form>
                         </div>
                     </div>
+                    </div>
+                    <div className="col-md-4 col-sm-12">
+                        <div className="card card-usuarios">
+                            <div className="card-header bg-primary text-white">
+                                <h4>Usuarios</h4>
+                            </div>
+                            <div className="card-body">
+                               {
+                                this.props.users.map(user =>{
+                                    return  <div key={user.id} className="item-profile">
+                                                <div className="item-profile-body">
+                                                    <img src={ user.avatar? user.avatar : 'https://image.flaticon.com/icons/svg/25/25231.svg'  }></img>
+                                                    <div className="content">
+                                                        <Link to="/perfil" className="title">{user.github}</Link>
+                                                        <div className="repositorios">
+                                                            { user.repos > 0? user.repos: 0 } Repositorios
+                                                        </div>
+                                                        <Link to={'/perfil/'+user.github} className="ver-mas btn btn-sm btn-primary">Ver mas</Link>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                })
+                               } 
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
+                
         )
     }
 }

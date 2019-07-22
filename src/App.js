@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Cookies from 'js-cookie';
@@ -17,11 +17,9 @@ export default class App extends Component{
     users : Cookies.get('users') === undefined? [] : JSON.parse(Cookies.get('users'))
   }
 
-  cancelCourse = () => { 
-    document.getElementById("mainform").reset();
-  }
 
-  addUser = (name, lastname, personal_id, birthday, email, github) => {
+
+  addUser = (name, lastname, personal_id, birthday, email, github, avatar, repos) => {
     let id = this.state.users.length +1;
     const newUser = {
         id,
@@ -30,10 +28,12 @@ export default class App extends Component{
         personal_id,
         birthday,
         email,
-        github
+        github,
+        avatar,
+        repos
     }
 
-    this.cancelCourse()
+
     
     this.setState({
       users: [...this.state.users, newUser]
@@ -51,11 +51,17 @@ export default class App extends Component{
               <Router>
                 <Navbar/>
                 <main className="mainContent">
-                  <div className="container">
-                    <div className="row">
-                      <Formulario addUser={this.addUser} />
+                  <Route exact path="/" render={()=>{
+                    return <div className="container">
+                      <Formulario addUser={this.addUser} users ={this.state.users}/>
                     </div>
-                  </div>
+                  }}>
+                  </Route>
+                  <Route path="/profile/:name" render={()=>{
+                    return <div></div>
+
+                  }}>
+                  </Route>
                 </main>
               </Router>
             </div>
