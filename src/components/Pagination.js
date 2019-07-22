@@ -1,27 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-export default class Pagination extends Component {
+const Pagination = (props) => {
+    const pagesLink = [];
 
-    pagesLink = [];
-
-    
-
-    render() {
-        for(let i = 1; i <= this.rops.pages + 1; i++){
-            let active = this.props.currentPage == i ? 'active': '';
-            this.pagesLink.push(
-            <li className={`btn ${active}`} key={i} onClick={()=> this.props.nextPage(i)}>
-                <a href="#">{i}</a>
-            </li>)
-        }
-        return (
-            <div className="container">
-                <div className="row">
-                    <ul className="pagination">
-                        {this.pagesLink}
-                    </ul>
-                </div>
-            </div>
-        )
+    for(let i = 1; i <= props.pages + 1; i++){
+        let active = props.currentPage === i ? 'active': '';
+        pagesLink.push(
+        <li className={`page-item ${active}`} key={i} onClick={()=> props.nextPage(i)}>
+            <a className="page-link" href="javascript:void(0)">{i}</a>
+        </li>)
     }
+
+    return (
+        <div className="container">
+            <div className="row justify-content-center">
+                <ul className="pagination text-center">
+                    {pagesLink}
+                </ul>
+            </div>
+        </div>
+    )
 }
+
+export default Pagination;

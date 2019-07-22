@@ -274,7 +274,7 @@ export default class Formulario extends Component {
                                 this.props.users.map(user =>{
                                     return  <div key={user.id} className="item-profile">
                                                 <div className="item-profile-body">
-                                                    <img src={ user.avatar? user.avatar : 'https://image.flaticon.com/icons/svg/25/25231.svg'  }></img>
+                                                    <img src={ user.avatar? user.avatar : 'https://image.flaticon.com/icons/svg/25/25231.svg'  } alt='img'></img>
                                                     <div className="content">
                                                         <Link to={'/perfil/'+user.github} className="title">{user.github}</Link>
                                                         <div className="repositorios">
