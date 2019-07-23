@@ -6,6 +6,7 @@ window.jQuery = $;
 window.$ = $;
 global.jQuery = $;
 
+
 var CancelToken = axios.CancelToken;
 let cancel = '';
 
@@ -28,6 +29,9 @@ const initialState = {
     loading: false,
     repos: '',
     message: '',
+    isHidden: false,
+    send: false
+
 
 
 }
@@ -42,6 +46,7 @@ export default class Formulario extends Component {
 
         cancel && cancel();
         if(query.length > 2){
+            this.setState({isHidden:true})
             axios.get( searchUrl, {
                 CancelToken: new CancelToken(function executor(c){
                     cancel = c;
@@ -72,6 +77,7 @@ export default class Formulario extends Component {
 
     selectName = (e) =>{
         var el = $(e.target);
+        this.setState({isHidden : false})
         var repos = `https://api.github.com/users/${el.text()}/repos?client_id=5bdcb6dca7a60b24e67a&client_secret=87b7273004655379d13a5790d7fc1a039068d6c4`;
         axios.get( repos, {
             CancelToken: new CancelToken(function executor(c){
@@ -83,6 +89,7 @@ export default class Formulario extends Component {
                 github: el.text(),
                 avatar: el.attr('data-avatar'),
                 repos: response.data.length,
+                send: true
 
             })
             
@@ -165,7 +172,12 @@ export default class Formulario extends Component {
             this.setState({githubError})
             return false;
         }else{
-            return true
+            if(this.state.send){
+                return true
+
+            }else{
+                return false
+            }
         }
     }
     
@@ -180,9 +192,20 @@ export default class Formulario extends Component {
 
     onChange = (e) =>{
         if(e.target.name !== 'github'){
-            this.setState({
-                [e.target.name] : e.target.value
-            })
+            if(e.target.name === 'personal_id'){
+
+                e.target.value = (e.target.value + '').replace(/[^0-9]/g, '');
+                this.setState({
+                    [e.target.name] : e.target.value
+                })   
+    
+    
+            }else{
+                this.setState({
+                    [e.target.name] : e.target.value
+                })
+
+            }
         }else{
             this.setState({
                 [e.target.name] : e.target.value
@@ -196,6 +219,12 @@ export default class Formulario extends Component {
             
         }
        
+    }
+
+    toggleIsHidden(e){
+        this.setState((currentState) => ({
+            isHidden: !currentState.isHidden
+        }));
     }
 
     render() {
@@ -213,35 +242,35 @@ export default class Formulario extends Component {
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="name">Nombres</label>
-                                            <input type="text"  autoComplete="off"   name="name" id="" onChange={this.onChange} value={this.state.name} className="form-control"/>
+                                            <input type="text"  autoComplete="off"   name="name" id="" onChange={this.onChange} value={this.state.name} className="form-control" maxLength="20"/>
                                             <div className="error">{this.state.nameError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="lastname">Apellidos</label>
-                                            <input type="text" name="lastname" id="lastname" onChange={this.onChange} value={this.state.lastname} className="form-control"/>
+                                            <input type="text" name="lastname" id="lastname" onChange={this.onChange} value={this.state.lastname} className="form-control" maxLength="20"/>
                                             <div className="error">{this.state.lastnameError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="personal_id">Cedula</label>
-                                            <input type="text" name="personal_id" id="personal_id" onChange={this.onChange} value={this.state.personal_id} className="form-control"/>
+                                            <input type="text" name="personal_id" id="personal_id" onChange={this.onChange} value={this.state.personal_id} className="form-control" maxLength="20"/>
                                             <div className="error">{this.state.personal_idError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="birthday">Fecha de Nacimiento</label>
-                                            <input type="text" name="birthday" id="birthday" onChange={this.onChange} value={this.state.birthday} className="form-control"/>
+                                            <input type="date" name="birthday" id="birthday" onChange={this.onChange} value={this.state.birthday} className="form-control" maxLength="11"/>
                                             <div className="error">{this.state.birthdayError}</div>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
-                                            <input type="text" name="email" id="email" onChange={this.onChange} value={this.state.email} className="form-control"/>
+                                            <input type="email" name="email" id="email" onChange={this.onChange} value={this.state.email} className="form-control" maxLength="20"/>
                                             <div className="error">{this.state.emailError}</div>
                                         </div>
                                     </div>
@@ -249,9 +278,9 @@ export default class Formulario extends Component {
                                         {/* <Search title={'github'} change={this.state.github}/> */}
                                         <div className="form-group">
                                             <label htmlFor="github">Github</label>
-                                            <input type="text" name="github" id="github" onChange={this.onChange} value={this.state.github} className="form-control"/>
+                                            <input type="text" name="github" id="github" onChange={this.onChange} value={this.state.github} className="form-control" maxLength="20"/>
                                             <div className="error">{this.state.githubError}</div>
-                                            {this.renderResult()}
+                                            {this.state.isHidden ?this.renderResult(): ''}
                                         </div>
                                     </div>
                                     <div className="col-12 pt-3">

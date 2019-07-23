@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+// import '../node_modules/jquery/themes/base/autocomplete.css';
 import './App.css';
+
 import Cookies from 'js-cookie';
 
 
